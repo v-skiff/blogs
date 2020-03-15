@@ -1,20 +1,82 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import View
+from django.views.generic import View, ListView
+from django.urls import reverse
+from django.contrib.auth.models import User
+from .forms import PostForm
+from .models import Post
 
 
-class IndexView(View):
+class IndexView(ListView):
+    context_object_name = 'users'
+    paginate_by = 3
+    template_name = 'main/index.html'
+
+    def get_queryset(self):
+        return User.objects.all()
+
+
+class BPUserPosts(ListView):
+    context_object_name = 'posts'
+    paginate_by = 3
+    template_name = 'main/user_posts.html'
+
+    def get_queryset(self):
+        return User.objects.get(id=self.kwargs['id']).blog_posts.all()
+
+
+# Posts
+class BPPostsList(ListView):
+    context_object_name = 'posts'
+    paginate_by = 3
+    template_name = 'main/posts.html'
+
+    def get_queryset(self):
+        return self.request.user.blog_posts.all().order_by('-date_pub')
+
+
+class BPPostCreate(View):
     def get(self, request):
-        return render(request, 'main/index.html')
+        form = PostForm()
+        return render(request, 'main/post_create_form.html', context={'form': form})
+
+    def post(self, request):
+        bound_form = PostForm(request.POST)
+        if bound_form.is_valid():
+            new_post = bound_form.save(commit=False)
+            new_post.author = request.user
+            new_post.save()
+            return redirect(reverse('main:posts_list'))
+
+        return render(request, 'blog/post_create_form.html', context={'form': bound_form})
 
 
-def index(request):
-    # bbs = Bb.objects.filter(is_active=True)[:10]
-    bbs = None
-    context = {'bbs': bbs}
-    return render(request, 'main/index.html', context)
+class BPPostUpdate(View):
+    def get(self, request, id):
+        post = Post.objects.get(id=id)
+        bound_form = PostForm(instance=post)
+        return render(request, 'main/post_update_form.html', context={'form': bound_form, 'post': post})
+
+    def post(self, request, id):
+        post = Post.objects.get(id=id)
+        bound_form = PostForm(request.POST, instance=post)
+        if bound_form.is_valid():
+            bound_form.save()
+            return redirect(reverse('main:posts_list'))
+        return render(request, 'main/post_update_form.html', context={'form': bound_form, 'post': post})
+
+
+class BPPostDelete(View):
+    def get(self, request, id):
+        post = Post.objects.get(id=id)
+        return render(request, 'main/post_delete_form.html', context={'post': post})
+
+    def post(self, request, id):
+        post = Post.objects.get(id=id)
+        post.delete()
+        return redirect(reverse('main:posts_list'))
 
 
 class BPLoginView(LoginView):

@@ -5,6 +5,17 @@
     <div class="row">
         <div class="col-12">
             <h2>Blogs list</h2>
+            {% if users %}
+                {% for user in users %}
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <a href="{% url 'main:user_posts' user.id %}">{{ user.username }}'s blog</a>
+                            <a href="" type="button" class="btn btn-success btn-sm float-right">Subscribe</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% include "layout/pagination.html" with page=page_obj %}
+        {% endif %}
         </div>
     </div>
 {% endblock %}

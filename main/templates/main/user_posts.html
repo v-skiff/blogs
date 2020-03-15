@@ -1,0 +1,27 @@
+{% extends "layout/base.html" %}
+{% load bootstrap4 %}
+
+{% block title %}My posts{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2>My posts</h2>
+        {% if posts %}
+            {% for post in posts %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        {{ post.date_pub }}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ post.title }}</h5>
+                        <p class="card-text">{{ post.body|truncatewords:15 }}</p>
+                        {# <a href="{{ post.get_absolute_url }}" class="btn btn-light">Read</a> #}
+                    </div>
+                </div>
+            {% endfor %}
+            {% include "layout/pagination.html" with page=page_obj %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
