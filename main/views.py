@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import View, ListView
+from django.views.generic import View, ListView, DetailView
 from django.urls import reverse
 from django.contrib.auth.models import User
 from .forms import PostForm
@@ -24,10 +24,25 @@ class BPUserPosts(ListView):
     template_name = 'main/user_posts.html'
 
     def get_queryset(self):
-        return User.objects.get(id=self.kwargs['id']).blog_posts.all()
+        return User.objects.get(id=self.kwargs['id']).blog_posts.all().order_by('-date_pub')
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['user'] = User.objects.get(id=self.kwargs['id'])
+        return context
 
 
-# Posts
+class BPUserPostDetail(DetailView):
+    model = Post
+    template_name = 'main/user_post_detail.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['user'] = User.objects.get(id=self.kwargs['user_id'])
+        return context
+
+
+# Personal posts
 class BPPostsList(ListView):
     context_object_name = 'posts'
     paginate_by = 3

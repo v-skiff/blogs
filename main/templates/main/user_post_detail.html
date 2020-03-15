@@ -1,0 +1,22 @@
+{% extends "layout/base.html" %}
+{% load bootstrap4 %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<div class="col-12">
+        <h2>{{ post.title }}</h2>
+        <a href="{% url 'main:user_posts' user.id %}" class="btn btn-info">Back</a>
+        <div class="card mb-4">
+            <div class="card-header">
+                {{ post.date_pub }}
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">
+                    {{ post.title }}
+                </h5>
+                <p class="card-text">{{ post.body }}</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
