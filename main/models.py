@@ -14,3 +14,8 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Subscription(models.Model):
+    subscriber_id = models.IntegerField(db_index=True)
+    blogger_id = models.IntegerField(db_index=True)

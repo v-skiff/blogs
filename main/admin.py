@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post
+from .models import Post, Subscription
 
 
 @admin.register(Post)
@@ -10,3 +10,6 @@ class PostAdmin(admin.ModelAdmin):
     raw_id_fields = ('author',)
     date_hierarchy = 'date_pub'
     ordering = ('date_pub',)
+
+
+admin.site.register(Subscription)

@@ -1,13 +1,19 @@
 {% extends "layout/base.html" %}
 {% load bootstrap4 %}
 
-{% block title %}{{ user.username }}'s posts{% endblock %}
+{% block title %}Profile{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-12">
-        <h2>{{ user.username }}'s posts</h2>
-        <a href="{% url 'main:index' %}" class="btn btn-info">Back to blogs list</a>
+        <h2>{{ user.username }}'s profile</h2>
+        {% if user.first_name and user.last_name %}
+            <p>Hello, {{ user.first_name }} {{ user.last_name }}!</p>
+        {% else %}
+            <p>Hello!</p>
+        {% endif %}
+
+        <h3>Your feed</h3>
         {% if posts %}
             {% for post in posts %}
                 <div class="card mb-4">

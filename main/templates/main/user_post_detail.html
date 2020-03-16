@@ -6,11 +6,19 @@
 {% block content %}
 <div class="col-12">
         <h2>{{ post.title }}</h2>
-        <a href="{% url 'main:user_posts' user.id %}" class="btn btn-info">Back</a>
+        <a href="{% url 'main:user_posts' post.author_id %}" class="btn btn-info">Back to blogger page</a>
         <div class="card mb-4">
             <div class="card-header">
                 {{ post.date_pub }}
+                {% if user.is_authenticated %}
+                    {% if post.id not in read_posts %}
+                        <a href="" type="button" class="btn btn-success btn-sm float-right">Mark as read</a>
+                    {% else %}
+                        <a href="" type="button" class="btn btn-danger btn-sm float-right">Mark as unread</a>
+                    {% endif %}
+                {% endif %}
             </div>
+
             <div class="card-body">
                 <h5 class="card-title">
                     {{ post.title }}
