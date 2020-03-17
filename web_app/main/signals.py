@@ -2,7 +2,10 @@ from django.db.models.signals import post_save
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
+import logging
 from .models import Subscription, Post
+
+logger = logging.getLogger(__name__)
 
 
 def notification(sender, instance, **kwargs):
@@ -18,7 +21,10 @@ def notification(sender, instance, **kwargs):
             message = f"Hello, there is a new post! Link: {base_url}:{port}{post_link}"
 
             em = EmailMessage(subject='New post!', body=message, to=[user_email])
-            em.send()
+            try:
+                em.send()
+            except Exception as e:
+                logger.error(e, type(e))
 
 
 post_save.connect(notification, sender=Post)
