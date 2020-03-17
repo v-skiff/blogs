@@ -1,0 +1,27 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-12">
+            <h2>Blogs list</h2>
+            {% if bloggers %}
+                {% for blogger in bloggers %}
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <a href="{% url 'main:user_posts' blogger.id %}">{{ blogger.username }}'s blog</a>
+                            {% if user.is_authenticated %}
+                                {% if blogger.id not in subscriptions %}
+                                    <a href="{% url 'main:subscribe' blogger.id %}?page={{ page_obj.number }} " type="button" class="btn btn-success btn-sm float-right">Subscribe</a>
+                                {% else %}
+                                    <a href="{% url 'main:unsubscribe' blogger.id %}?page={{ page_obj.number }} " type="button" class="btn btn-danger btn-sm float-right">Unsubscribe</a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% include "layout/pagination.html" with page=page_obj %}
+        {% endif %}
+        </div>
+    </div>
+{% endblock %}

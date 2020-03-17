@@ -1,0 +1,38 @@
+{% extends "layout/base.html" %}
+{% load bootstrap4 %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2>{{ user.username }}'s profile</h2>
+        {% if user.first_name and user.last_name %}
+            <p>Hello, {{ user.first_name }} {{ user.last_name }}!</p>
+        {% else %}
+            <p>Hello!</p>
+        {% endif %}
+
+        <h3>Your feed</h3>
+        {% if posts %}
+            {% for post in posts %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        {{ post.date_pub }}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="{% url 'main:user_post_detail' user.id post.id %}">
+                            {{ post.title }}
+                            </a>
+                        </h5>
+                        <p class="card-text">{{ post.body|truncatewords:15 }}</p>
+                        <a href="{% url 'main:user_post_detail' user.id post.id %}" class="btn btn-light">Read</a>
+                    </div>
+                </div>
+            {% endfor %}
+            {% include "layout/pagination.html" with page=page_obj %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

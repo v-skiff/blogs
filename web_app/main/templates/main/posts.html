@@ -1,0 +1,33 @@
+{% extends "layout/base.html" %}
+{% load bootstrap4 %}
+
+{% block title %}My posts{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2>My posts</h2>
+        <div>
+            <a href="{% url 'main:post_create' %}" type="button" class="btn btn-primary">Create post</a>
+        </div>
+        <br>
+        {% if posts %}
+            {% for post in posts %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        {{ post.date_pub }}
+                        <a style="margin-left: 10px;" href="{% url 'main:post_delete' post.id %}" type="button" class="btn btn-danger btn-sm float-right">Delete</a>
+                        <a href="{% url 'main:post_update' post.id %}" type="button" class="btn btn-secondary btn-sm float-right">Edit</a>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ post.title }}</h5>
+                        <p class="card-text">{{ post.body|truncatewords:15 }}</p>
+                        {# <a href="{{ post.get_absolute_url }}" class="btn btn-light">Read</a> #}
+                    </div>
+                </div>
+            {% endfor %}
+            {% include "layout/pagination.html" with page=page_obj %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
