@@ -13,6 +13,9 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         {{ post.date_pub }}
+                        {% if post.id in read_posts %}
+                            <span class="float-right">was read</span>
+                        {% endif %}
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">

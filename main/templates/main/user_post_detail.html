@@ -12,9 +12,9 @@
                 {{ post.date_pub }}
                 {% if user.is_authenticated %}
                     {% if post.id not in read_posts %}
-                        <a href="" type="button" class="btn btn-success btn-sm float-right">Mark as read</a>
+                        <a href="{% url 'main:read' post.author_id post.id %}?back_url={{ back_url }}" type="button" class="btn btn-success btn-sm float-right">Mark as read</a>
                     {% else %}
-                        <a href="" type="button" class="btn btn-danger btn-sm float-right">Mark as unread</a>
+                        <a href="{% url 'main:unread' post.id %}?back_url={{ back_url }}" type="button" class="btn btn-danger btn-sm float-right">Mark as unread</a>
                     {% endif %}
                 {% endif %}
             </div>

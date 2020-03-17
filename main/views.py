@@ -1,12 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.views import LoginView, LogoutView
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import View, ListView, DetailView
 from django.urls import reverse
 from django.contrib.auth.models import User
 from .forms import PostForm
-from .models import Post, Subscription
+from .models import Post, Subscription, ReadPost
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 class IndexView(ListView):
@@ -34,6 +36,8 @@ class BPUserPosts(ListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
+        read_posts = ReadPost.objects.filter(reader_id=self.request.user.id).values('post_id')
+        context['read_posts'] = {x['post_id'] for x in read_posts}
         context['user'] = User.objects.get(id=self.kwargs['id'])
         return context
 
@@ -44,6 +48,10 @@ class BPUserPostDetail(DetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
+
+        read_posts = ReadPost.objects.filter(reader_id=self.request.user.id).values('post_id')
+        context['read_posts'] = {x['post_id'] for x in read_posts}
+        context['back_url'] = self.request.path_info
         context['user'] = User.objects.get(id=self.kwargs['user_id'])
         return context
 
@@ -104,23 +112,6 @@ class BPPostDelete(View):
 class BPLoginView(LoginView):
     template_name = 'main/login.html'
 
-#
-# class BPFeed(View):
-#     def get(self, request):
-#         subscriptions = Subscription.objects.filter(subscriber_id=self.request.user.id).values(
-#             'blogger_id')
-#         subscriptions = {x['blogger_id'] for x in subscriptions}
-#         object_list = Post.objects.filter(author_id__in=subscriptions)
-#         paginator = Paginator(object_list, 3)
-#         page = request.GET.get('page')
-#         try:
-#             posts = paginator.page(page)
-#         except PageNotAnInteger:
-#             posts = paginator.page(1)
-#         except EmptyPage:
-#             posts = paginator.page(paginator.num_pages)
-#         return render(request, 'main/feed.html', {'page': page, 'posts': posts})
-
 
 class BPFeed(ListView):
     context_object_name = 'posts'
@@ -132,11 +123,6 @@ class BPFeed(ListView):
             'blogger_id')
         subscriptions = {x['blogger_id'] for x in subscriptions}
         return Post.objects.filter(author_id__in=subscriptions).order_by('-date_pub')
-
-    # def get_context_data(self, *args, **kwargs):
-    #     context = super().get_context_data(*args, **kwargs)
-    #     context['user'] = User.objects.get(id=self.kwargs['id'])
-    #     return context
 
 
 class BPLogoutView(LoginRequiredMixin, LogoutView):
@@ -152,4 +138,18 @@ def subscribe(request, blogger_id):
 def unsubscribe(request, blogger_id):
     subscription = Subscription.objects.get(subscriber_id=request.user.id, blogger_id=blogger_id)
     subscription.delete()
+    read_post = ReadPost.objects.filter(reader_id=request.user.id, author_id=blogger_id)
+    read_post.delete()
     return redirect(reverse('main:index') + '?page=' + request.GET['page'])
+
+
+# Read post
+def read(request, post_id, author_id):
+    ReadPost.objects.create(reader_id=request.user.id, post_id=post_id, author_id=author_id)
+    return redirect(request.GET['back_url'])
+
+
+def unread(request, post_id):
+    read_post = ReadPost.objects.get(post_id=post_id)
+    read_post.delete()
+    return redirect(request.GET['back_url'])

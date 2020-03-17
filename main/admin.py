@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post, Subscription
+from .models import Post, Subscription, ReadPost
 
 
 @admin.register(Post)
@@ -13,3 +13,4 @@ class PostAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Subscription)
+admin.site.register(ReadPost)
